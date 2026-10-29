@@ -1,4 +1,4 @@
-/* Colours follow Olympic bumper plates: Day A red, Day B blue, Day C yellow. */
+/* Colours follow bumper plates and the plan chart: Day 1 red, Day 2 blue, Day 3 green. */
 :root {
   --bg: #EEF0F2;
   --surface: #FFFFFF;
@@ -8,7 +8,7 @@
   --field: #F4F6F8;
   --plate-a: #C8372D; --on-a: #FFFFFF;
   --plate-b: #1F5FBF; --on-b: #FFFFFF;
-  --plate-c: #E0A100; --on-c: #1B2129;
+  --plate-c: #2E8B47; --on-c: #FFFFFF;
   --over: #C8372D;
   --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --text: "Barlow", -apple-system, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
@@ -27,14 +27,14 @@
     --field: #262D35;
     --plate-a: #E04A3F; --on-a: #FFFFFF;
     --plate-b: #3D7BE0; --on-b: #FFFFFF;
-    --plate-c: #F0B429; --on-c: #15191E;
+    --plate-c: #3FAE5E; --on-c: #0E1A12;
     --over: #FF6B5E;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #15191E; --surface: #1E242B; --ink: #E9EDF1; --muted: #9AA5B1; --line: #2E3640; --field: #262D35;
-  --plate-a: #E04A3F; --plate-b: #3D7BE0; --plate-c: #F0B429; --on-c: #15191E; --over: #FF6B5E;
+  --plate-a: #E04A3F; --plate-b: #3D7BE0; --plate-c: #3FAE5E; --on-c: #0E1A12; --over: #FF6B5E;
   color-scheme: dark;
 }
 
@@ -58,9 +58,9 @@ button, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--plate-b); outline-offset: 2px; }
 
-.day-A { --plate: var(--plate-a); --on-plate: var(--on-a); }
-.day-B { --plate: var(--plate-b); --on-plate: var(--on-b); }
-.day-C { --plate: var(--plate-c); --on-plate: var(--on-c); }
+.day-1 { --plate: var(--plate-a); --on-plate: var(--on-a); }
+.day-2 { --plate: var(--plate-b); --on-plate: var(--on-b); }
+.day-3 { --plate: var(--plate-c); --on-plate: var(--on-c); }
 
 /* Header */
 .top {
@@ -190,7 +190,7 @@ button { cursor: pointer; }
   box-shadow: 0 8px 24px rgba(0,0,0,.25);
 }
 .rest-track { height: 4px; background: rgba(127,127,127,.35); }
-.rest-fill { display: block; height: 100%; background: var(--plate-c); transform-origin: left; }
+.rest-fill { display: block; height: 100%; background: #F0B429; transform-origin: left; }
 .rest-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 16px; }
 .rest-label { font-weight: 600; font-size: 15px; }
 .rest-time { font-family: var(--display); font-weight: 700; font-size: 30px; flex: 1; font-variant-numeric: tabular-nums; }
@@ -198,7 +198,7 @@ button { cursor: pointer; }
   min-height: 44px; padding: 0 14px; border-radius: 10px;
   border: 1px solid rgba(127,127,127,.5); background: transparent; color: inherit; font-weight: 600;
 }
-.restbar.ended .rest-time { color: var(--plate-c); }
+.restbar.ended .rest-time { color: #F0B429; }
 
 /* History */
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
@@ -229,3 +229,12 @@ button { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
 }
+
+/* Exercise photo and how-to link */
+.ex-photo {
+  display: block; width: 100%; max-height: 220px; object-fit: cover;
+  border-radius: 12px; margin: 12px 0 4px; background: var(--field);
+}
+.howto { display: inline-block; margin-top: 8px; font-size: 15px; font-weight: 600; color: var(--plate); text-underline-offset: 3px; }
+.day-1 .howto, .day-3 .howto { filter: brightness(.9); }
+.set small { font-size: 13px; margin-left: 1px; }

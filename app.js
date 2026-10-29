@@ -26,11 +26,14 @@
   const dayById = id => days.find(d => d.id === id);
   const exIn = (day, id) => day.exercises.find(e => e.id === id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const unitOf = ex => (ex.unit === 's' ? 's' : '');
+  const unitOf = ex => (ex.unit === 's' || ex.unit === 'min' ? ex.unit : '');
+  const unitWord = u => (u === 's' ? 'seconds' : u === 'min' ? 'minutes' : 'reps');
   const targetReps = ex => { const m = String(ex.reps).match(/\d+/); return m ? Number(m[0]) : 0; };
   const fmtClock = sec => { sec = Math.max(0, Math.floor(sec)); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); };
   const fmtDate = iso => new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   const fmtKg = n => (Math.round(n * 100) / 100).toLocaleString('en-GB');
+
+  const repsText = ex => ex.unit === 'min' ? `${esc(ex.reps)} min` : `${ex.sets} × ${esc(ex.reps)}${ex.unit === 's' ? 's' : ''}`;
 
   let view = 'workout';
   let selectedDay = null;
@@ -61,7 +64,8 @@
   }
 
   function estimateMinutes(day) {
-    const work = day.exercises.reduce((t, ex) => t + ex.sets * (45 + (ex.rest || 0)) + 60, 0);
+    const workTime = ex => (ex.unit === 'min' ? targetReps(ex) * 60 : ex.unit === 's' ? targetReps(ex) : 45);
+    const work = day.exercises.reduce((t, ex) => t + ex.sets * workTime(ex) + (ex.sets - 1) * (ex.rest || 0) + 60, 0);
     return Math.round(work / 60 + (PLAN.warmupMinutes || 0) + (PLAN.cooldownMinutes || 0));
   }
 
@@ -82,7 +86,7 @@
   }
 
   function volumeOf(entry) {
-    return entry.exercises.reduce((t, e) => t + (e.unit === 's' ? 0 : (e.weight || 0) * e.sets.reduce((a, b) => a + b, 0)), 0);
+    return entry.exercises.reduce((t, e) => t + (e.unit ? 0 : (e.weight || 0) * e.sets.reduce((a, b) => a + b, 0)), 0);
   }
 
   // ---------- Rendering ----------
@@ -110,9 +114,9 @@
       </div>
       <section class="card preview day-${esc(day.id)}">
         <h3 class="ex-name">${esc(day.name)}: ${esc(day.focus)}</h3>
-        <p class="meta">About ${estimateMinutes(day)} minutes with warm-up and stretch</p>
+        <p class="meta">About ${estimateMinutes(day)} minutes including warm-up</p>
         <ol class="preview-list">
-          ${day.exercises.map(ex => `<li><span>${esc(ex.name)}</span><span class="muted">${ex.sets} × ${esc(ex.reps)}${unitOf(ex)}</span></li>`).join('')}
+          ${day.exercises.map(ex => `<li><span>${esc(ex.name)}</span><span class="muted">${repsText(ex)}</span></li>`).join('')}
         </ol>
         <button type="button" class="btn btn-primary" data-action="start" data-day="${esc(day.id)}">Start ${esc(day.name)}</button>
         ${PLAN.progression ? `<p class="meta" style="margin-top:12px">${esc(PLAN.progression)}</p>` : ''}
@@ -124,13 +128,15 @@
     const u = unitOf(ex);
     const last = lastPerformance(ex.id);
     const lastText = last
-      ? `Last time: ${last.weight ? fmtKg(last.weight) + ' kg × ' : ''}${last.sets.map(r => r + u).join(', ')}`
+      ? `Last time: ${last.weight ? fmtKg(last.weight) + ' kg × ' : ''}${last.sets.map(r => r + (u === 'min' ? ' min' : u)).join(', ')}`
       : '';
     return `
       <article class="card ex">
         <h3 class="ex-name">${esc(ex.name)}</h3>
-        <p class="meta">${ex.sets} × ${esc(ex.reps)}${u}, rest ${ex.rest}s</p>
+        <p class="meta">${repsText(ex)}${ex.rest ? `, rest ${ex.rest}s` : ''}</p>
+        ${ex.image ? `<img class="ex-photo" src="${esc(ex.image)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
         ${ex.note ? `<p class="note">${esc(ex.note)}</p>` : ''}
+        <a class="howto" href="${esc(ex.video || 'https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.name + ' how to'))}" target="_blank" rel="noopener">How to do it</a>
         ${ex.weighted ? `
           <div class="weight">
             <label for="w-${esc(ex.id)}">Weight (kg)</label>
@@ -144,8 +150,8 @@
         <div class="sets" role="group" aria-label="Sets for ${esc(ex.name)}">
           ${st.sets.map((r, i) => `
             <button type="button" class="set ${r != null ? 'done' : ''}" data-action="set" data-ex="${esc(ex.id)}" data-i="${i}"
-              aria-pressed="${r != null}" aria-label="Set ${i + 1}${r != null ? `, done, ${r}${u ? ' seconds' : ' reps'}` : ''}">
-              ${r != null ? r : targetReps(ex)}${u}
+              aria-pressed="${r != null}" aria-label="Set ${i + 1}${r != null ? `, done, ${r} ${unitWord(u)}` : ''}">
+              ${r != null ? r : targetReps(ex)}${u ? `<small>${u}</small>` : ''}
             </button>`).join('')}
         </div>
       </article>`;
@@ -240,7 +246,7 @@
             <ul>
               ${e.exercises.filter(x => x.sets.length).map(x => `
                 <li><span>${esc(x.name)}</span>
-                <span class="muted">${x.weight ? fmtKg(x.weight) + ' kg × ' : ''}${x.sets.map(r => r + (x.unit === 's' ? 's' : '')).join(', ')}</span></li>`).join('')}
+                <span class="muted">${x.weight ? fmtKg(x.weight) + ' kg × ' : ''}${x.sets.map(r => r + (x.unit === 'min' ? ' min' : x.unit || '')).join(', ')}</span></li>`).join('')}
             </ul>
             <button type="button" class="btn btn-quiet" data-action="delete" data-id="${esc(e.id)}">Delete this session</button>
           </div>
@@ -271,7 +277,7 @@
       const isLastSetOfSession = countSets(s).done === countSets(s).total;
       if (!isLastSetOfSession) startRest(ex.rest);
     } else {
-      const label = unitOf(ex) ? 'Seconds' : 'Reps';
+      const w = unitWord(unitOf(ex)); const label = w[0].toUpperCase() + w.slice(1);
       const v = prompt(`${label} for set ${i + 1}. Clear it to untick the set.`, sets[i]);
       if (v === null) return;
       const n = parseInt(v, 10);

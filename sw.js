@@ -1,6 +1,6 @@
 // Lets the app open at the gym even with poor signal.
 // Network first, so changes you push to GitHub show up; falls back to the saved copy offline.
-const CACHE = 'gymlog-v1';
+const CACHE = 'gymlog-v2';
 const ASSETS = ['./', 'index.html', 'style.css', 'app.js', 'plan.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
