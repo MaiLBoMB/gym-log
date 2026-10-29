@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gym Log</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Gym Log">
+  <meta name="theme-color" content="#EEF0F2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#15191E" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <h1 class="brand">Gym Log</h1>
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button role="tab" data-view="workout" aria-selected="true">Workout</button>
+        <button role="tab" data-view="history" aria-selected="false">History</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="app" class="wrap"></main>
+
+  <div id="restbar" class="restbar" role="timer" hidden>
+    <div class="rest-track"><span id="rest-fill" class="rest-fill"></span></div>
+    <div class="rest-row">
+      <span class="rest-label">Rest</span>
+      <span id="rest-time" class="rest-time">0:00</span>
+      <button type="button" class="rest-btn" id="rest-add">+15s</button>
+      <button type="button" class="rest-btn" id="rest-skip">Skip</button>
+    </div>
+  </div>
+
+  <script src="plan.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
